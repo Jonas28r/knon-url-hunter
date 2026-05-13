@@ -1,28 +1,34 @@
 const puppeteer = require('puppeteer');
 
 async function cazarURL() {
-    console.log("🕵️ Iniciando bot cazador V2 (Especial para Popunders)...");
+    console.log("🕵️ Iniciando bot cazador V3 (Modo Sigilo Anti-Detección)...");
 
-    // Apagamos el bloqueador de Popups interno de Chrome
     const browser = await puppeteer.launch({ 
         args: [
             '--no-sandbox', 
             '--disable-setuid-sandbox', 
-            '--disable-popup-blocking' // ¡CRUCIAL!
+            '--disable-popup-blocking'
         ] 
     });
     
     const page = await browser.newPage();
 
-    // ¡LA TRAMPA MAESTRA! Escuchamos cuando se crea una NUEVA pestaña
+    // 1. CAMUFLAJE: Falsificamos el User Agent para parecer un navegador normal de Windows
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+
+    // 2. MODO NINJA: Borramos la variable interna que delata a Puppeteer como Bot
+    await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+    });
+
+    // 3. EL RADAR DE PESTAÑAS
     browser.on('targetcreated', async (target) => {
         if (target.type() === 'page') {
             const newPage = await target.page();
             if (newPage) {
-                // Vigilamos el tráfico de red de la pestaña nueva
                 newPage.on('request', request => {
                     const url = request.url();
-                    // Filtramos el script original para agarrar la URL final
+                    // Filtramos para agarrar la ruta pura
                     if (url.startsWith('http') && !url.includes('pl29430597')) {
                         console.log("\n=============================================");
                         console.log("🎯 ¡BINGO! URL PURA CAPTURADA:");
@@ -36,12 +42,13 @@ async function cazarURL() {
         }
     });
 
-    // Preparamos el HTML trampa
+    // 4. LA TRAMPA HTML MEJORADA
     const html = `
     <!DOCTYPE html>
     <html>
-    <body style="width: 100vw; height: 100vh; margin: 0;">
-        <div id="pantalla" style="width:100%; height:100%; position:absolute; z-index:9999;"></div>
+    <head><title>Test</title></head>
+    <body style="width: 100vw; height: 100vh; margin: 0; background: white;">
+        <button id="pantalla" style="width:100%; height:100%; position:absolute; z-index:9999; opacity:0.1;">TOCAR</button>
         <script src="https://pl29430597.profitablecpmratenetwork.com/48/9f/d2/489fd23120820292cb2f5bba04598957.js"></script>
     </body>
     </html>
@@ -49,17 +56,25 @@ async function cazarURL() {
 
     await page.setContent(html);
 
-    console.log("⏳ Dejando que Adsterra prepare el popunder (4 segundos)...");
-    await new Promise(r => setTimeout(r, 4000));
+    console.log("⏳ Dejando que Adsterra analice el entorno (5 segundos)...");
+    await new Promise(r => setTimeout(r, 5000));
 
-    console.log("👆 Simulando toque humano en la pantalla...");
-    // Usamos un clic real del cursor en las coordenadas (x: 200, y: 200)
+    console.log("👆 Ejecutando clics de simulacion...");
+    
+    // Disparamos clics desde adentro de la página (como un humano)
+    await page.evaluate(() => {
+        document.getElementById('pantalla').click();
+        document.body.click();
+    });
+    
+    // Y también clics del mouse desde afuera por si acaso
     await page.mouse.click(200, 200);
+    await page.mouse.click(400, 400);
 
-    // Esperamos a ver si reacciona
+    // Esperamos el resultado
     await new Promise(r => setTimeout(r, 6000));
     
-    console.log("⚠️ Falló la captura. Adsterra no disparó la ventana.");
+    console.log("⚠️ Falló de nuevo. La seguridad de Adsterra está demasiado alta para bots simples.");
     await browser.close();
     process.exit(1);
 }
