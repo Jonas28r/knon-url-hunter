@@ -1,0 +1,23 @@
+name: Bot Cazador de URLs
+on: 
+  push:
+    paths:
+      - 'cazador.js'
+
+jobs:
+  cazar-adsterra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Instalar Puppeteer
+        run: npm install
+        
+      - name: 🕵️ Ejecutar Cazador
+        run: npm run cazar
+
