@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Radar Knon</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff00; font-family: monospace; padding: 20px; text-align: center; }
+        textarea { width: 100%; height: 200px; background: #111; color: #00ff00; border: 1px solid #ff1493; margin-top: 20px; padding: 10px; font-size: 14px; }
+        .instrucciones { color: #fff; font-family: sans-serif; margin-bottom: 40px; }
+    </style>
+</head>
+<body>
+    <div class="instrucciones">
+        <h2>Atrapador de URLs</h2>
+        <p>1. Asegúrate de tener apagado el bloqueador de anuncios (Brave Shields).</p>
+        <p>2. Toca cualquier parte de esta pantalla un par de veces.</p>
+    </div>
+
+    <div id="resultado"><h2>Esperando el disparo...</h2></div>
+
+    <script>
+        // EL MONSTRUO: Secuestramos la función nativa del navegador
+        const abrirVentanaOriginal = window.open;
+        
+        window.open = function(url, nombre, caracteristicas) {
+            // Cuando Adsterra intente abrir la ventana, le robamos la URL
+            document.getElementById('resultado').innerHTML = 
+                "<h2 style='color:#ff1493;'>🎯 ¡URL CAPTURADA!</h2>" +
+                "<p>Copia el texto de abajo y ponlo en tu Worker de Cloudflare:</p>" +
+                "<textarea>" + url + "</textarea>";
+            
+            // Retornamos nulo para bloquear la apertura real de la pestaña
+            return null; 
+        };
+
+        // Por si Adsterra intenta ser astuto y usa un enlace fantasma en vez de window.open
+        document.addEventListener('click', function(e) {
+            let elemento = e.target;
+            while (elemento) {
+                if (elemento.tagName === 'A' && elemento.href) {
+                    e.preventDefault();
+                    document.getElementById('resultado').innerHTML = 
+                        "<h2 style='color:#ff1493;'>🎯 ¡URL CAPTURADA (Vía Enlace)!</h2>" +
+                        "<textarea>" + elemento.href + "</textarea>";
+                    return false;
+                }
+                elemento = elemento.parentElement;
+            }
+        }, true);
+    </script>
+
+    <script src="https://pl29430597.profitablecpmratenetwork.com/48/9f/d2/489fd23120820292cb2f5bba04598957.js"></script>
+</body>
+</html>
