@@ -1,0 +1,11 @@
+{
+  "name": "nogle-cazador-url",
+  "version": "1.0.0",
+  "scripts": {
+    "cazar": "node cazador.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}
+
